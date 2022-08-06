@@ -1,5 +1,5 @@
 # AzDOEpicPauseChildren
-This is a basic Azure Function that accepts a Azure DevOps work item updated webhook body and will set the state to of all children (and childrens children) to state new. The function is written using .NET 6 and is using Function worker runtime 4.0.
+This is a basic Azure Function that accepts a Azure DevOps work item updated webhook body and will set the state of all children (and childrens children) to state new. The function is written using .NET 6 and is using Function worker runtime 4.0.
 
 ## Architecture 
 This Azure Function recieves data from Azure DevOps via a work item updated webhook configured within Azure DevOps, it then uses a [PAT](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) to authenticate back to Azure DevOps to modify work items. The PAT is stored within Azure Keyvault and retrieved at function execution time.
