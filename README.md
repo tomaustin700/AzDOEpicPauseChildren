@@ -68,7 +68,7 @@ Change the trigger to 'Work Item Updated', set the 'Work Item Type' to Epic and 
 
 ![trigger](./Documentation/trigger.PNG)
 
-Set the URL to the URl of your Azure function followed by /api/PauseEpicChildren, inside the Headers box type 'x-function-key:defaultfunctionkeyfromearlier'
+Set the URL to the URl of your Azure function followed by /api/PauseEpicChildren, inside the Headers box type 'x-functions-key:defaultfunctionkeyfromearlier'
 
 ![settings](./Documentation/whsettings.PNG)
 
