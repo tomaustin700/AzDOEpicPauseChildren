@@ -5,7 +5,7 @@ This is a basic Azure Function that accepts a Azure DevOps work item updated web
 This Azure Function recieves data from Azure DevOps via a work item updated webhook configured within Azure DevOps, it then uses a [PAT](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows) to authenticate back to Azure DevOps to modify work items. The PAT is stored within Azure Keyvault and retrieved at function execution time.
 
 
-![Azure resources](./Documentation/azsetup.png)
+![Azure resources](./Documentation/azsetup.PNG)
 
 ## Getting Started
 The first thing to do is create all the Azure resources required, this is simply a keyvault and an Azure function. Creating the function will also create an associated storage account and consumption service plan, you wont need to do anything with these but they are required for the function to run.
@@ -13,63 +13,63 @@ The first thing to do is create all the Azure resources required, this is simply
 ### Acquiring a PAT
 You will need to generate a PAT from Azure DevOps so the function can authenticate correctly, to do this press the User Settings button in the top right of Azure DevOps and select 'Personal access tokens'
 
-![PAT button](./Documentation/PATbutton.png)
+![PAT button](./Documentation/PATbutton.PNG)
 
 Create a new token and grant it read, write & manage permissions - no other permissions are required.
 
-![PAT settings](./Documentation/patsettings.png)
+![PAT settings](./Documentation/patsettings.PNG)
 
 Make a note of the generated PAT. It will only be shown once and we need to add it to the Azure Keyvault you created shortly.
 
 ### Azure Resource Configuration
 There are a few bits of configuration that need to be done on the Azure Function and within the Keyvault. Firstly open your function, select 'Identity' on the left and turn on System Assigned identity. This will allow us to grant the function permission to access the keyvault.
 
-![func identity](./Documentation/funcidentity.png)
+![func identity](./Documentation/funcidentity.PNG)
 
 We also need to set two application settings on the Function, one to pass it our Azure DevOps instance url and another to give it the Keyvault URL. Add a new application setting and call it 'AzDOBaseURL', set the value to the URL of your Azure DevOps instance.
 
-![base url](./Documentation/baseurl.png)
+![base url](./Documentation/baseurl.PNG)
 
 Add another setting called 'KeyVaultUri' and set it to the Uri of your Azure Keyvault
 
-![key vault uri](./Documentation/keyvaulturi.png)
+![key vault uri](./Documentation/keyvaulturi.PNG)
 
 Once you've added both the settings make sure you press 'Save' at the top of the Application Settings page.
 
 Now navigate to your Key vault and select 'Secrets' on the left
 
-![secrets](./Documentation/secretsbutton.png)
+![secrets](./Documentation/secretsbutton.PNG)
 
 Press the 'Generate/Import' button at the top and add a new Manual secret called 'azure-devops-pat', set its value to the PAT you acquired earlier
 
-![secrets](./Documentation/patkv.png)
+![secrets](./Documentation/patkv.PNG)
 
 Once created press 'Access Policies' on the left and press the '+ Add Access Policy' button.
 
 Grant 'Secret Permissions' Get and then press the 'None selected' hyperlink next to 'Service Principal', type the name of your Function and select it.
 
-![policy](./Documentation/kvaccesspolicy.png)
+![policy](./Documentation/kvaccesspolicy.PNG)
 
 That's all the Azure configuration done, before configuring Azure DevOps to send webhook events to the function we need to retrieve a Functions key to allow Azure DevOps to authenticate with the function. Head back to your function and select 'App keys'. Note down the value of the default key.
 
-![func key](./Documentation/funckey.png)
+![func key](./Documentation/funckey.PNG)
 
 ### Azure DevOps Configuration
 
 Now we just need to configure Azure DevOps. Head to DevOps and select the Project Settings button in the button left, once there select 'Service Hooks'
 
-![service hooks](./Documentation/hooks.png)
+![service hooks](./Documentation/hooks.PNG)
 
 Press the 'Create subscription' button and select 'Web Hooks' and then press 'Next'
 
-![web hooks](./Documentation/wh.png)
+![web hooks](./Documentation/wh.PNG)
 
 Change the trigger to 'Work Item Updated', set the 'Work Item Type' to Epic and the 'Field' to State
 
-![trigger](./Documentation/trigger.png)
+![trigger](./Documentation/trigger.PNG)
 
 Set the URL to the URl of your Azure function followed by /api/PauseEpicChildren, inside the Headers box type 'x-function-key:defaultfunctionkeyfromearlier'
 
-![settings](./Documentation/whsettings.png)
+![settings](./Documentation/whsettings.PNG)
 
 Now press 'Finish'. Now all you need to do it deploy the Function and everything should work. When a Epic is set to 'New' all of it's children and all of their children will also be set back to 'New'.
