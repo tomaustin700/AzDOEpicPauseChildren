@@ -16,6 +16,7 @@ using AzDOEpicPauseChildren.Classes;
 using System.Linq;
 using Microsoft.VisualStudio.Services.WebApi.Patch.Json;
 using Microsoft.VisualStudio.Services.WebApi.Patch;
+using System.Collections.Generic;
 
 namespace AzDOEpicPauseChildren
 {
@@ -46,28 +47,38 @@ namespace AzDOEpicPauseChildren
 
                         foreach (var c2 in child.Relations.Where(a => a.Rel == "System.LinkTypes.Hierarchy-Forward"))
                         {
-                            JsonPatchDocument c2Patch = new JsonPatchDocument();
+                            var id = int.Parse(c2.Url.Split("/").Last());
+                            var status = await workItemConnection.GetWorkItemAsync(id, new List<string>() { "System.State" });
 
-                            c2Patch.Add(new JsonPatchOperation()
+                            if (status.Fields["System.State"].ToString() != "Closed")
+                            {
+                                JsonPatchDocument c2Patch = new JsonPatchDocument();
+
+                                c2Patch.Add(new JsonPatchOperation()
+                                {
+                                    Operation = Operation.Add,
+                                    Path = "/fields/System.State",
+                                    Value = "New"
+                                });
+
+                                await workItemConnection.UpdateWorkItemAsync(c2Patch, id);
+                            }
+                        }
+
+
+                        if (child.Fields["System.State"].ToString() != "Closed")
+                        {
+                            JsonPatchDocument c1Patch = new JsonPatchDocument();
+
+                            c1Patch.Add(new JsonPatchOperation()
                             {
                                 Operation = Operation.Add,
                                 Path = "/fields/System.State",
                                 Value = "New"
                             });
 
-                            await workItemConnection.UpdateWorkItemAsync(c2Patch, int.Parse(c2.Url.Split("/").Last()));
+                            await workItemConnection.UpdateWorkItemAsync(c1Patch, int.Parse(c1.Url.Split("/").Last()));
                         }
-
-                        JsonPatchDocument c1Patch = new JsonPatchDocument();
-
-                        c1Patch.Add(new JsonPatchOperation()
-                        {
-                            Operation = Operation.Add,
-                            Path = "/fields/System.State",
-                            Value = "New"
-                        });
-
-                        await workItemConnection.UpdateWorkItemAsync(c1Patch, int.Parse(c1.Url.Split("/").Last()));
                     }
                 }
 
